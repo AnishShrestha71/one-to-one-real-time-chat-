@@ -49,15 +49,28 @@ class MessageController extends Controller
     }
     public function sendPrivateMessage(Request $request, User $user)
     {
-
         $sender = User::find(Auth::user()->id);
-        $message = $sender->message()->create([
-            'user_id' => Auth::user()->id,
-            'message' => $request->message,
-            'reciver_id' => $user->id
-        ]);
-
+        if($request->has('file'))
+        {
+            $request->file->move(public_path('images'), $request->file->getClientOriginalName());
+            $message = $sender->message()->create([
+                'user_id' => Auth::user()->id,
+                'image' => $request->file->getClientOriginalName(),
+                'reciver_id' => $user->id
+            ]);
+        }
+        else{
+           
+            $message = $sender->message()->create([
+                'user_id' => Auth::user()->id,
+                'message' => $request->message,
+                'reciver_id' => $user->id
+            ]);
+          
+        }
+       
         broadcast(new PrivateMessageSent($message->load('user')))->toOthers();
+       
         return response([
             'status' => 'private message sent'
         ]);

@@ -25,3 +25,10 @@ Broadcast::channel('chat', function ($user) {
 Broadcast::channel('pchat.{reciverid}', function ($user,$reciverid) {
     return Auth::check();
 });
+
+Broadcast::channel('activeStatus', function ($user) {
+
+    if(auth()->check()){
+        return $user;
+    }
+});
