@@ -31,7 +31,7 @@
             </div>
         </div>
         <div v-if="activeFriend != null">
-            <div>Person name</div>
+            <div>{{reciver.name}}</div>
             <div>
                 <div
                     class="h-full"
@@ -64,7 +64,8 @@
                     @keydown="typingNotification"
                 />
                 <button @click="sendMessage">send</button>
-                <input type="file" accept="image/jpg" @change="uploadImage"/>
+                <h1 @click="imageUpload">upload</h1>
+                <input type="file" accept="image/jpg" @change="uploadImage" class="hidden" ref="chooseFile"/>
             </div>
         </div>
     </div>
@@ -81,22 +82,19 @@ export default {
             typingFriend: {},
             typingClock: null,
             onlineFriends: [],
-            files:[]
+            files:[],
+            reciver: {}
         };
     },
     watch: {
         activeFriend(val) {
             this.fetchMessage();
+            this.reciver = this.users.find(user=>
+                user.id === this.activeFriend
+            );
+            console.log(this.reciver)
         },
-        files:{
-        deep:true,
-        handler(){
-          let success=this.files[0].success;
-          if(success){
-            this.fetchMessages();
-          }
-        }
-      },
+        
     },
     methods: {
         sendMessage() {
@@ -139,6 +137,10 @@ export default {
                 this.fetchMessage();
             });
                 
+        },
+        imageUpload(){
+          this.$refs.chooseFile.click()
+           
         }
     },
     created() {

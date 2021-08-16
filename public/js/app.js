@@ -1901,8 +1901,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['user'],
+  props: ["user"],
   data: function data() {
     return {
       message: null,
@@ -1920,7 +1929,7 @@ __webpack_require__.r(__webpack_exports__);
       axios.post("/send_message", {
         message: this.message
       }).then(function (response) {
-        _this.message = '';
+        _this.message = "";
 
         _this.fetchMessage();
 
@@ -1939,7 +1948,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this3 = this;
 
-    Echo["private"]('chat').listen('MessageSent', function (e) {
+    Echo["private"]("chat").listen("MessageSent", function (e) {
       _this3.allMessages.push(e.message);
     });
     console.log(this.user);
@@ -2033,6 +2042,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["user"],
   data: function data() {
@@ -2044,27 +2054,24 @@ __webpack_require__.r(__webpack_exports__);
       typingFriend: {},
       typingClock: null,
       onlineFriends: [],
-      files: []
+      files: [],
+      reciver: {}
     };
   },
   watch: {
     activeFriend: function activeFriend(val) {
-      this.fetchMessage();
-    },
-    files: {
-      deep: true,
-      handler: function handler() {
-        var success = this.files[0].success;
+      var _this = this;
 
-        if (success) {
-          this.fetchMessages();
-        }
-      }
+      this.fetchMessage();
+      this.reciver = this.users.find(function (user) {
+        return user.id === _this.activeFriend;
+      });
+      console.log(this.reciver);
     }
   },
   methods: {
     sendMessage: function sendMessage() {
-      var _this = this;
+      var _this2 = this;
 
       if (!this.message) {
         return alert("type message");
@@ -2073,25 +2080,25 @@ __webpack_require__.r(__webpack_exports__);
       axios.post("/send_private_message/".concat(this.activeFriend), {
         message: this.message
       }).then(function (response) {
-        _this.message = "";
+        _this2.message = "";
 
-        _this.fetchMessage(_this.activeFriend);
+        _this2.fetchMessage(_this2.activeFriend);
 
         console.log("message.sent");
       });
     },
     fetchUsers: function fetchUsers() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get("/users").then(function (response) {
-        _this2.users = response.data;
+        _this3.users = response.data;
       });
     },
     fetchMessage: function fetchMessage() {
-      var _this3 = this;
+      var _this4 = this;
 
       axios.get("/fetch_private_message/".concat(this.activeFriend)).then(function (response) {
-        _this3.allMessages = response.data;
+        _this4.allMessages = response.data;
       });
     },
     typingNotification: function typingNotification() {
@@ -2100,42 +2107,45 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     uploadImage: function uploadImage(e) {
-      var _this4 = this;
+      var _this5 = this;
 
       var data = new FormData();
       data.append("name", "mypicture");
       data.append("file", e.target.files[0]);
       axios.post("/send_private_message/".concat(this.activeFriend), data).then(function (response) {
-        _this4.fetchMessage();
+        _this5.fetchMessage();
       });
+    },
+    imageUpload: function imageUpload() {
+      this.$refs.chooseFile.click();
     }
   },
   created: function created() {
-    var _this5 = this;
+    var _this6 = this;
 
     this.fetchUsers();
     Echo.join("activeStatus").here(function (users) {
       console.log("online", users);
-      _this5.onlineFriends = users;
+      _this6.onlineFriends = users;
     }).joining(function (user) {
-      _this5.onlineFriends.push(user);
+      _this6.onlineFriends.push(user);
 
       console.log("joining", user.name);
     }).leaving(function (user) {
-      _this5.onlineFriends.splice(_this5.onlineFriends.indexOf(user), 1);
+      _this6.onlineFriends.splice(_this6.onlineFriends.indexOf(user), 1);
 
       console.log("leaving", user.name);
     });
     Echo["private"]("pchat." + this.user.id).listen("PrivateMessageSent", function (e) {
-      _this5.activeFriend = e.message.user_id;
+      _this6.activeFriend = e.message.user_id;
 
-      _this5.allMessages.push(e.message);
+      _this6.allMessages.push(e.message);
     }).listenForWhisper("typing", function (e) {
-      if (e.typinguser.id == _this5.activeFriend) {
-        _this5.typingFriend = e.typinguser;
-        if (_this5.typingClock) clearTimeout();
-        _this5.typingClock = setTimeout(function () {
-          _this5.typingFriend = {};
+      if (e.typinguser.id == _this6.activeFriend) {
+        _this6.typingFriend = e.typinguser;
+        if (_this6.typingClock) clearTimeout();
+        _this6.typingClock = setTimeout(function () {
+          _this6.typingFriend = {};
         }, 3000);
       }
     });
@@ -44478,20 +44488,32 @@ var render = function() {
     "div",
     { staticClass: "w-3/4 mx-auto" },
     [
-      _c("div"),
-      _vm._v(" "),
       _vm._l(_vm.allMessages, function(message) {
-        return _c("div", { key: message.id, staticClass: "h-full" }, [
-          _c(
-            "div",
-            {
-              staticClass: " mb-8",
-              class:
-                _vm.user.id === message.user_id ? "text-right" : "text-left"
-            },
-            [_vm._v("\n           " + _vm._s(message.message) + "\n        ")]
-          )
-        ])
+        return _c(
+          "div",
+          {
+            key: message.id,
+            staticClass: "h-full  flex ",
+            class:
+              _vm.user.id === message.user_id ? "justify-end" : "justify-start"
+          },
+          [
+            message.message
+              ? _c("div", { staticClass: " mb-8" }, [
+                  _vm._v(
+                    "\n            " + _vm._s(message.message) + "\n        "
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            message.image
+              ? _c("img", {
+                  staticClass: "w-24 h-24 ",
+                  attrs: { src: "/images/" + message.image }
+                })
+              : _vm._e()
+          ]
+        )
       }),
       _vm._v(" "),
       _c("div", [
@@ -44600,7 +44622,7 @@ var render = function() {
     _vm._v(" "),
     _vm.activeFriend != null
       ? _c("div", [
-          _c("div", [_vm._v("Person name")]),
+          _c("div", [_vm._v(_vm._s(_vm.reciver.name))]),
           _vm._v(" "),
           _c(
             "div",
@@ -44675,7 +44697,11 @@ var render = function() {
             _vm._v(" "),
             _c("button", { on: { click: _vm.sendMessage } }, [_vm._v("send")]),
             _vm._v(" "),
+            _c("h1", { on: { click: _vm.imageUpload } }, [_vm._v("upload")]),
+            _vm._v(" "),
             _c("input", {
+              ref: "chooseFile",
+              staticClass: "hidden",
               attrs: { type: "file", accept: "image/jpg" },
               on: { change: _vm.uploadImage }
             })

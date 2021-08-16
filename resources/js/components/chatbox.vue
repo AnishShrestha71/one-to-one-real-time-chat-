@@ -1,13 +1,22 @@
 <template>
     <div class="w-3/4 mx-auto">
-        <div>
-      
-        </div>
-        <div class="h-full" v-for="message in allMessages" :key="message.id">
-            <div class=" mb-8" :class="user.id === message.user_id ? 'text-right' : 'text-left' ">
-               {{message.message}}
+        <div class="h-full  flex " v-for="message in allMessages" :key="message.id" :class="
+                    user.id === message.user_id ? 'justify-end' : 'justify-start'
+                "
+                >
+            <div
+                class=" mb-8"
+                
+                v-if="message.message"
+            >
+                {{ message.message }}
             </div>
-           
+
+            <img
+                v-if="message.image"
+                :src="'/images/' + message.image"
+                class="w-24 h-24 "
+            />
         </div>
         <div>
             <input
@@ -21,9 +30,7 @@
 </template>
 <script>
 export default {
-    props:[
-        'user'
-    ],
+    props: ["user"],
     data() {
         return {
             message: null,
@@ -39,8 +46,8 @@ export default {
             axios
                 .post("/send_message", { message: this.message })
                 .then(response => {
-                    this.message = '';
-                   this.fetchMessage();
+                    this.message = "";
+                    this.fetchMessage();
                     console.log("message.sent");
                 });
         },
@@ -51,14 +58,13 @@ export default {
             });
         }
     },
-    mounted(){
-        Echo.private('chat').listen('MessageSent',(e)=>
-        {
-            this.allMessages.push(e.message)
-        })
-        console.log(this.user)
+    mounted() {
+        Echo.private("chat").listen("MessageSent", e => {
+            this.allMessages.push(e.message);
+        });
+        console.log(this.user);
     },
-    created(){
+    created() {
         this.fetchMessage();
     }
 };

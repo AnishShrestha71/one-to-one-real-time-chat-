@@ -29,7 +29,7 @@ class MessageController extends Controller
     }
     public function recieve()
     {
-        return Message::with('user')->get();
+        return Message::with('user')->where('reciver_id',null)->get();
     }
 
     public function fetchPrivateMessage(User $user)

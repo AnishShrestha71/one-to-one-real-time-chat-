@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('content')
     <div class="">
-            
-            <chatbox :user="{{Auth::user()}}"></chatbox>
+        @guest
+            Group chat is available only for logged in user
+        @else
+            <chatbox :user="{{ Auth::user() }}"></chatbox>
+        @endguest
+
     </div>
-    
+
 @endsection
